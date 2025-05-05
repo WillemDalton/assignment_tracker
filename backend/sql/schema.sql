@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS test;
+
+CREATE TABLE test(
+  id SERIAL PRIMARY KEY,
+  text TEXT
+);
+
+INSERT INTO test (id, text)
+  VALUES (1, 'DB WORKING');
