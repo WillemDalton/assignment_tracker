@@ -1,9 +1,10 @@
 DROP TABLE IF EXISTS test;
 
-CREATE TABLE test(
-  id SERIAL PRIMARY KEY,
-  text TEXT
+CREATE TABLE assignments(
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    class TEXT NOT NULL,
+    due_date BIGINT NOT NULL,
+    session_id TEXT NOT NULL
 );
-
-INSERT INTO test (id, text)
-  VALUES (1, 'DB WORKING');
