@@ -1,5 +1,5 @@
 import os
-from utils import *
+from .utils import *
 
 def rebuild_tables():
     exec_sql_file('sql/schema.sql')

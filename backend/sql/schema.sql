@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS test;
+DROP TABLE IF EXISTS assignments;
 
 CREATE TABLE assignments(
     id SERIAL PRIMARY KEY,
