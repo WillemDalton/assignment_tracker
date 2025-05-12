@@ -108,8 +108,8 @@ function create_assignment(_due_date, _assignment_name, _course_number, _assignm
     assignments_HTML.appendChild(assignment_div);
 }
 
-
-function create_span(span_class, span_content){
+function create_span(span_class, span_content)
+{
     let span = document.createElement("span");
     span.innerHTML = span_content;
     span.classList.add(span_class);
@@ -122,17 +122,17 @@ function create_input(input_type, input_placeholder, input_class)
     input.type = input_type;
     input.classList.add(input_class);
     if(input.type == "text")
-        {
-            input.placeholder = input_placeholder;
-        }
-        return input;
-    }
-    
-    function create_div(div_class)
     {
-        let div = document.createElement("div");
-        div.classList.add(div_class);
-        return div;
+        input.placeholder = input_placeholder;
+    }
+    return input;
+}
+    
+function create_div(div_class)
+{
+    let div = document.createElement("div");
+    div.classList.add(div_class);
+    return div;
 }
 
 function create_form(form_class)
@@ -159,72 +159,92 @@ function create_btn(btn_class, btn_content)
     return btn;
 }
 
+/*
+ * Create new session cookie.
+*/
 function setSessionCookie(value) {
     return document.cookie = "session_id=" + (value || "") + 
     "; path=/" + 
     "; SameSite=Lax";
 }
 
-function getCookie(name)
+/*
+ * Grab a cookie with a given cookie name (cname)
+*/
+function getCookie(cname)
 {
-    const nameEQ = name + "=";
+    const name = cname + "=";
     const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
+    for (let i = 0; i < ca.length; i++) 
+    {
         let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        while (c.charAt(0) === ' ') 
+        {
+            c = c.substring(1, c.length);
+        }
+        if (c.indexOf(name) === 0) 
+        {
+            return c.substring(name.length, c.length);
+        }
     }
     return null;
 }
 
+/*
+ *  Fetch all assignments for a given user's session_id.
+*/
 async function getData(session_id)
 {
-    try {
+    try 
+    {
         const response = await fetch(`${API_URL}?session_id=${session_id}`, {
             method: "GET",
         });
+
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
         
         const json = await response.json();
         for (let assignment of json)
-            {
-                console.log(assignment)
-                let date = new Date(assignment[4])
-                create_assignment(date.toLocaleString(), assignment[1], assignment[2], assignment[3])
-            }
+        {
+            let date = new Date(assignment[4])
+            create_assignment(date.toLocaleString(), assignment[1], assignment[2], assignment[3])
+        }
             
-        }
-        catch(e)
-        {
-            console.error("Error fetching data: " + e.message)
-        }
     }
-    
-    async function postData(session_id, assignment_name, course_number, assignment_notes, due_date)
+    catch(e)
     {
-        try 
-        {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    "session_id" : session_id,
-                    "due_date" : due_date,
-                    "name" : assignment_name,
-            "description" : assignment_notes,
-            "class" : course_number
-        })
-    });
-    if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+        console.error("Error fetching data: " + e.message)
     }
 }
-catch(e)
+    
+/*
+ * Post newly created assignment into the database.
+*/
+async function postData(session_id, assignment_name, course_number, assignment_notes, due_date)
 {
-    console.error("Error posting data: " + e.message)
-}
+    try 
+    {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                "session_id" : session_id,
+                "due_date" : due_date,
+                "name" : assignment_name,
+                "description" : assignment_notes,
+                "class" : course_number
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+    }
+    catch(e)
+    {
+        console.error("Error posting data: " + e.message)
+    }
 }
 
 /*
