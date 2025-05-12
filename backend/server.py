@@ -17,7 +17,6 @@ class Assignments(Resource):
 
     def post(self):
         data = request.get_json()
-
         name = data.get("name")
         description = data.get("description")
         assignment_class = data.get("class")
