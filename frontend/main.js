@@ -1,5 +1,7 @@
 const ALPHABET = "abcedf0123456789-_"
 const ID_LENGTH = 6
+const SESSION_LENGTH = 8
+const API_URL = "http://localhost:5000/assignments"
 
 let create_button = document.querySelector(".add")
 let assignmentsHTML = document.querySelector(".assignments")
@@ -9,20 +11,22 @@ create_button.addEventListener("click", function(e) {
     create_placeholder_assignment();
 });
 
-function generate_assignmentID()
+/* ASSIGNMENT ID STUFF */
+function generate_ID(length)
 {
     let id = ""
-    for(let i = 0; i < ID_LENGTH; i++)
+    for(let i = 0; i < length; i++)
     {
-        id += ALPHABET[random_int(0, ALPHABET.length)];
+        id += ALPHABET[random_int(0, ALPHABET.length - 1)];
     }
     return id;
 }
 
 function random_int(min, max)
 {
-    Math.floor(Math.random * (max - min + 1) + min)
+    return Math.floor(Math.random() * (max - min + 1) + min)
 }
+
 
 function create_placeholder_assignment()
 {
@@ -66,6 +70,8 @@ function create_placeholder_assignment()
         // }
         // else {
             create_assignment(dueDate.value, assignmentName.value, courseNumber.value, assignmentNotes.value);
+            const milliseconds = new Date(dueDate.value).getTime();
+            postData(getCookie("session_id"), assignmentName.value, courseNumber.value, assignmentNotes.value, milliseconds)
             assignmentDiv.parentNode.removeChild(assignmentDiv);
         //}
     });
@@ -73,13 +79,9 @@ function create_placeholder_assignment()
     assignmentForm.appendChild(assignmentControls);
     assignmentControls.appendChild(createBtn);
     assignmentControls.appendChild(cancelBtn);
-    
-    
-    assignments.set(generate_assignmentID(), assignmentDiv);
+    assignments.set(generate_ID(ID_LENGTH), assignmentDiv);
     assignmentsHTML.insertBefore(assignmentDiv, assignmentsHTML.children[0]);
 }
-
-
 
 function create_assignment(due_date, assignment_name, course_number, assignment_notes) {
     let assignmentDiv = create_div("assignment");
@@ -151,3 +153,76 @@ function create_btn(btn_class, btn_content)
     btn.innerHTML = btn_content;
     return btn;
 }
+
+function setSessionCookie(value) {
+    return document.cookie = "session_id=" + (value || "") + 
+                      "; path=/" + 
+                      "; SameSite=Lax";
+}
+
+function getCookie(name)
+{
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+async function getData(session_id)
+{
+  try {
+    const response = await fetch(`${API_URL}?session_id=${encodeURIComponent(session_id)}`, {
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    for (let assignment of json)
+    {
+        console.log(assignment)
+        let date = new Date(assignment[4])
+        create_assignment(date, assignment[1], assignment[2], assignment[3])
+    }
+
+  } catch (error) {
+  }
+}
+
+async function postData(session_id, assignment_name, course_number, assignment_notes, due_date)
+{
+    try {
+    const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            "session_id" : session_id,
+            "due_date" : due_date,
+            "name" : assignment_name,
+            "description" : assignment_notes,
+            "class" : course_number
+        })
+    });
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+  } catch (error) {
+  }
+}
+
+window.onload = function() {
+    let cookieValue = getCookie("session_id")
+    if(cookieValue != null)
+    {
+        getData(cookieValue)
+    }
+    else
+    {
+        setSessionCookie(generate_ID(SESSION_LENGTH))
+    }
+};

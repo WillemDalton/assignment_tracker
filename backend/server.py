@@ -8,12 +8,11 @@ rebuild_tables()
 
 app = Flask(__name__)
 api = Api(app)
-CORS(app, origins=["http://localhost:5173"])
+CORS(app)
 
 class Assignments(Resource):
     def get(self):
-        data = request.get_json()
-        session_id = data.get("session_id")
+        session_id = request.args.get("session_id")
         return get_all(session_id), 200
 
     def post(self):
