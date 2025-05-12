@@ -33,23 +33,47 @@ nav > * {
     box-sizing: border-box;
 }
 
-.add, .delete {
+.due_date
+{
+    font-weight: bold;
+}
+
+.add, .delete, .dropdown-btn {
     background-color: rgba(0, 0, 0, 0);
     border: none;
     padding-right: 1em;
     transition: transform 250ms ease-in-out;
 }
 
-.add:hover {
+.controls {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5    em;
+}
+
+.dropdown-btn, .delete 
+{
+    padding: 0;
+}
+
+.dropdown-btn open {
+
+}
+
+.add:hover, .delete:hover, .dropdown-btn:hover {
     transform: scale(1.2)
 }
 
-.add:active {
+.add:active, .delete:active, .dropdown-btn:active {
     transform: scale(0.9);
 }
 
-.add-svg, .delete-svg {
+.add-svg {
     width: 3em;
+}
+
+.delete-svg, .dropdown-svg {
+    width: 1.5em;
 }
 
 .assignment {

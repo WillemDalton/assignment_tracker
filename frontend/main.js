@@ -82,7 +82,7 @@ function create_placeholder_assignment()
 /*
  * Create an assignment from placeholder form values.
  */
-function create_assignment(_due_date, _assignment_name, _course_number, _assignment_notes) {
+function create_assignment(_due_date, _assignment_name, _course_number, _assignment_notes, id) {
     let assignment_div = create_div("assignment");
 
     let card = create_div("card");
@@ -94,14 +94,33 @@ function create_assignment(_due_date, _assignment_name, _course_number, _assignm
     let delete_btn = create_btn("delete", null)
     delete_btn.appendChild(delete_img)
     
+    let dropdown_img = create_image("src/open.svg", "open dropdown", "dropdown-svg")
+    let dropdown_btn = create_btn("dropdown-btn", null)
+    dropdown_btn.appendChild(dropdown_img)
+
+    let controls = create_div("controls")
+    controls.appendChild(dropdown_btn)
+    controls.appendChild(delete_btn)
+
+    delete_btn.addEventListener("click", function(e){
+        deleteData(id)
+        assignment_div.parentNode.removeChild(assignment_div);
+    });
+
     assignment_div.appendChild(card);
     card.appendChild(due_date);
     card.appendChild(assignment_name);
     card.appendChild(course_number);
-    card.appendChild(delete_btn);
+    card.appendChild(controls);
     
     let dropdown = create_div("dropdown");
+
     let assignment_notes = create_span("assignment_notes", _assignment_notes);
+
+    dropdown_btn.addEventListener("click", function(e) {
+        dropdown_btn.classList.toggle("open")
+        dropdown.classList.toggle("open")    
+    })
 
     assignment_div.appendChild(dropdown);
     dropdown.appendChild(assignment_notes);
@@ -209,7 +228,7 @@ async function getData(session_id)
         for (let assignment of json)
         {
             let date = new Date(assignment[4])
-            create_assignment(date.toLocaleString(), assignment[1], assignment[2], assignment[3])
+            create_assignment(date.toLocaleString(), assignment[1], assignment[3], assignment[2], assignment[0])
         }
             
     }
@@ -235,6 +254,27 @@ async function postData(session_id, assignment_name, course_number, assignment_n
                 "name" : assignment_name,
                 "description" : assignment_notes,
                 "class" : course_number
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+    }
+    catch(e)
+    {
+        console.error("Error posting data: " + e.message)
+    }
+}
+
+async function deleteData(id)
+{
+    try 
+    {
+        const response = await fetch(API_URL, {
+            method: "DELETE",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                "id" :  id
             })
         });
         if (!response.ok) {
