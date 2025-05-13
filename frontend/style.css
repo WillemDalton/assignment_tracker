@@ -48,7 +48,7 @@ nav > * {
 .controls {
     margin-left: auto;
     display: flex;
-    gap: 0.5    em;
+    gap: 0.5em;
 }
 
 .dropdown-btn, .delete 
@@ -56,16 +56,32 @@ nav > * {
     padding: 0;
 }
 
-.dropdown-btn open {
-
+.dropdown-btn.open{
+    transform: rotateZ(180deg);
 }
 
 .add:hover, .delete:hover, .dropdown-btn:hover {
-    transform: scale(1.2)
+    transform: scale(1.2);
+}
+
+.dropdown-btn.open:hover{
+    transform: rotateZ(180deg) scale(1.2);
 }
 
 .add:active, .delete:active, .dropdown-btn:active {
     transform: scale(0.9);
+}
+
+.dropdown-btn.open:active{
+    transform: rotateZ(180deg) scale(0.9);
+}
+
+.dropdown.open {
+    visibility: visible;
+}
+
+.dropdown {
+    visibility: hidden;
 }
 
 .add-svg {

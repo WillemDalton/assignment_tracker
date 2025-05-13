@@ -38,6 +38,14 @@ function create_placeholder_assignment()
     
     let card = create_div("card");
     let due_date = create_input("datetime-local", "due_date");
+
+    // default to today, 11:59PM for due dates (nice feature to have.)
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    due_date.value = `${year}-${month}-${day}T23:59`;
+
     let assignment_name = create_input("text", "enter assignment name here...", "assignment_name");
     let course_number  = create_input("text", "enter course number here...", "course_number");
     
