@@ -129,15 +129,41 @@ function create_assignment(_due_date, _assignment_name, _course_number, _assignm
     controls.appendChild(delete_btn)
 
     delete_btn.addEventListener("click", function(e){
+        clearInterval(intevalID);
         deleteData(id)
         assignment_div.parentNode.removeChild(assignment_div);
     });
 
+    // progress bar logic
     let progress_bar = create_div("progress-bar")
     let progress = create_div("progress")
     progress_bar.appendChild(progress)
     
+    let startTime = Date.now()
 
+    let intevalID = setInterval(() => {
+        let date = new Date(_due_date);
+        let now = Date.now();
+        let percent;
+
+        if((date.getTime() - startTime) <= 0)
+        {
+            percent = 100
+        }
+        else
+        {
+            let time = (now - startTime)/(date.getTime() - startTime) * 100;
+            percent = Math.min(100, Math.max(0, time));
+        }
+
+        progress.style.width = percent + "%";
+
+        if(percent >= 100)
+        {
+            progress.classList.add("overdue");
+            clearInterval(intevalID);
+        }
+    }, 1000)
 
     assignment_div.appendChild(card);
     card.appendChild(due_date);

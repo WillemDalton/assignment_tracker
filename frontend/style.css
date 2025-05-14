@@ -119,8 +119,13 @@ nav > * {
 
 .progress {
     height: 100%;
-    width: 20%;
-    background-color: red;
+    width: 0%;
+    background-color: #9f91e4;
+}
+
+.overdue {
+    border: 1px solid red;
+    background-color: #e4919f;
 }
 
 .card {
