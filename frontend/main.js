@@ -44,7 +44,7 @@ function create_placeholder_assignment()
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    due_date.value = `${year}-${month}-${day}T23:59`;
+    due_date.value = `${year}-${month}-${day} 23:59`;
 
     let assignment_name = create_input("text", "enter assignment name here...", "assignment_name");
     let course_number  = create_input("text", "enter course number here...", "course_number");
@@ -74,10 +74,28 @@ function create_placeholder_assignment()
     assignment_form.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        create_assignment(due_date.value, assignment_name.value, course_number.value, assignment_notes.value);
-        const milliseconds = new Date(due_date.value).getTime();
-        postData(getCookie("session_id"), assignment_name.value, course_number.value, assignment_notes.value, milliseconds)
-        assignment_div.parentNode.removeChild(assignment_div);
+        if(due_date.value === "")
+        {
+            due_date.classList.add("error")
+        }
+        else if(assignment_name.value === "")
+        {
+            assignment_name.classList.add("error")
+        }
+        else if(course_number.value === "")
+        {
+            course_number.classList.add("error")
+        }
+        else
+        {
+            due_date.classList.remove("error")
+            assignment_name.classList.remove("error")
+            course_number.classList.remove("error")
+            create_assignment(due_date.value, assignment_name.value, course_number.value, assignment_notes.value);
+            const milliseconds = new Date(due_date.value).getTime();
+            postData(getCookie("session_id"), assignment_name.value, course_number.value, assignment_notes.value, milliseconds)
+            assignment_div.parentNode.removeChild(assignment_div);
+        }
     });
     
     assignment_form.appendChild(assignment_controls);
@@ -115,6 +133,12 @@ function create_assignment(_due_date, _assignment_name, _course_number, _assignm
         assignment_div.parentNode.removeChild(assignment_div);
     });
 
+    let progress_bar = create_div("progress-bar")
+    let progress = create_div("progress")
+    progress_bar.appendChild(progress)
+    
+
+
     assignment_div.appendChild(card);
     card.appendChild(due_date);
     card.appendChild(assignment_name);
@@ -131,6 +155,7 @@ function create_assignment(_due_date, _assignment_name, _course_number, _assignm
     })
 
     assignment_div.appendChild(dropdown);
+    assignment_div.appendChild(progress_bar);
     dropdown.appendChild(assignment_notes);
     assignments_HTML.appendChild(assignment_div);
 }
