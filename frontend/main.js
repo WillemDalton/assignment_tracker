@@ -91,7 +91,10 @@ function create_placeholder_assignment()
             due_date.classList.remove("error")
             assignment_name.classList.remove("error")
             course_number.classList.remove("error")
-            create_assignment(due_date.value, assignment_name.value, course_number.value, assignment_notes.value);
+            
+            let date = new Date(due_date.value);
+            create_assignment(`${date.toLocaleTimeString()} ${date.toLocaleDateString()}`, assignment_name.value, course_number.value, assignment_notes.value);
+            
             const milliseconds = new Date(due_date.value).getTime();
             postData(getCookie("session_id"), assignment_name.value, course_number.value, assignment_notes.value, milliseconds)
             assignment_div.parentNode.removeChild(assignment_div);
@@ -101,7 +104,6 @@ function create_placeholder_assignment()
     assignment_form.appendChild(assignment_controls);
     assignment_controls.appendChild(create_btn_html);
     assignment_controls.appendChild(cancel_btn);
-    assignments.set(generate_ID(ID_LENGTH), assignment_div);
     assignments_HTML.insertBefore(assignment_div, assignments_HTML.children[0]);
 }
 
@@ -124,15 +126,37 @@ function create_assignment(_due_date, _assignment_name, _course_number, _assignm
     let dropdown_btn = create_btn("dropdown-btn", null)
     dropdown_btn.appendChild(dropdown_img)
 
+    let complete_div = create_div("complete-container")
+    let complete = create_input("checkbox", null, "checkbox")
+    complete.id = "complete"
+    complete_div.appendChild(complete)
+    
+    complete.addEventListener("change", async function(e){
+        if (complete.checked) {
+            assignment_div.classList.add("complete");
+            await deleteData(id);
+            setTimeout(() => {
+                assignment_div.remove();
+            }, 1000);
+        }
+    })
+
+    let complete_label = create_label("complete-label", "complete", "Mark As Complete:");
+    
+
     let controls = create_div("controls")
+    controls.appendChild(complete_label)
+    controls.appendChild(complete_div)
     controls.appendChild(dropdown_btn)
     controls.appendChild(delete_btn)
-
+    
+    
     delete_btn.addEventListener("click", function(e){
         clearInterval(intevalID);
         deleteData(id)
         assignment_div.parentNode.removeChild(assignment_div);
     });
+
 
     // progress bar logic
     let progress_bar = create_div("progress-bar")
@@ -183,58 +207,84 @@ function create_assignment(_due_date, _assignment_name, _course_number, _assignm
     assignment_div.appendChild(dropdown);
     assignment_div.appendChild(progress_bar);
     dropdown.appendChild(assignment_notes);
-    assignments_HTML.appendChild(assignment_div);
+    assignment_div.dataset.dueDate = new Date(_due_date).getTime();
+    assignments.set(generate_ID(ID_LENGTH), assignment_div);
+    insertToDiv(assignment_div)
+}
+
+function insertToDiv(newAssignment)
+{
+    for(let existing of assignments.values())
+    {
+        const existingDueDate = Number(existing.dataset.dueDate)
+        if(Number(newAssignment.dataset.dueDate) < existingDueDate)
+        {
+            assignments_HTML.insertBefore(newAssignment, existing)
+            return
+        }
+    }
+
+    assignments_HTML.appendChild(newAssignment)
+}
+
+function create_label(label_class, label_for, label_text)
+{
+    let label = document.createElement("label")
+    label.innerText = label_text
+    label.setAttribute("for", label_for)
+    label.classList.add(label_class)
+    return label
 }
 
 function create_span(span_class, span_content)
 {
-    let span = document.createElement("span");
-    span.innerHTML = span_content;
-    span.classList.add(span_class);
-    return span;
+    let span = document.createElement("span")
+    span.innerHTML = span_content
+    span.classList.add(span_class)
+    return span
 }
 
 function create_input(input_type, input_placeholder, input_class)
 {
-    let input = document.createElement("input");
-    input.type = input_type;
-    input.classList.add(input_class);
+    let input = document.createElement("input")
+    input.type = input_type
+    input.classList.add(input_class)
     if(input.type == "text")
     {
-        input.placeholder = input_placeholder;
+        input.placeholder = input_placeholder
     }
-    return input;
+    return input
 }
     
 function create_div(div_class)
 {
-    let div = document.createElement("div");
-    div.classList.add(div_class);
-    return div;
+    let div = document.createElement("div")
+    div.classList.add(div_class)
+    return div
 }
 
 function create_form(form_class)
 {
-    let form = document.createElement("form");
-    form.classList.add(form_class);
-    return form;
+    let form = document.createElement("form")
+    form.classList.add(form_class)
+    return form
 }
 
 function create_image(img_source, img_alt, img_class)
 {
-    let image = document.createElement("img");
-    image.classList.add(img_class);
-    image.alt = img_alt;
-    image.src = img_source;
-    return image;
+    let image = document.createElement("img")
+    image.classList.add(img_class)
+    image.alt = img_alt
+    image.src = img_source
+    return image
 }
 
 function create_btn(btn_class, btn_content)
 {
-    let btn = document.createElement("button");
-    btn.classList.add(btn_class);
-    btn.innerHTML = btn_content;
-    return btn;
+    let btn = document.createElement("button")
+    btn.classList.add(btn_class)
+    btn.innerHTML = btn_content
+    return btn
 }
 
 /*
@@ -243,7 +293,7 @@ function create_btn(btn_class, btn_content)
 function setSessionCookie(value) {
     return document.cookie = "session_id=" + (value || "") + 
     "; path=/" + 
-    "; SameSite=Lax";
+    "; SameSite=Lax"
 }
 
 /*
@@ -252,7 +302,7 @@ function setSessionCookie(value) {
 function getCookie(cname)
 {
     const name = cname + "=";
-    const ca = document.cookie.split(';');
+    const ca = document.cookie.split(';')
     for (let i = 0; i < ca.length; i++) 
     {
         let c = ca[i];
@@ -262,10 +312,10 @@ function getCookie(cname)
         }
         if (c.indexOf(name) === 0) 
         {
-            return c.substring(name.length, c.length);
+            return c.substring(name.length, c.length)
         }
     }
-    return null;
+    return null
 }
 
 /*
@@ -280,14 +330,14 @@ async function getData(session_id)
         });
 
         if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
+            throw new Error(`Response status: ${response.status}`)
         }
         
-        const json = await response.json();
+        const json = await response.json()
         for (let assignment of json)
         {
             let date = new Date(assignment[4])
-            create_assignment(date.toLocaleString(), assignment[1], assignment[3], assignment[2], assignment[0])
+            create_assignment(`${date.toLocaleTimeString()} ${date.toLocaleDateString()}`, assignment[1], assignment[3], assignment[2], assignment[0])
         }
             
     }
@@ -314,9 +364,9 @@ async function postData(session_id, assignment_name, course_number, assignment_n
                 "description" : assignment_notes,
                 "class" : course_number
             })
-        });
+        })
         if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
+            throw new Error(`Response status: ${response.status}`)
         }
     }
     catch(e)
@@ -335,15 +385,17 @@ async function deleteData(id)
             body: JSON.stringify({
                 "id" :  id
             })
-        });
+        })
         if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
+            throw new Error(`Response status: ${response.status}`)
         }
     }
     catch(e)
     {
         console.error("Error posting data: " + e.message)
     }
+
+    assignments.delete(id)
 }
 
 /*
