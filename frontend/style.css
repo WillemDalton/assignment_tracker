@@ -7,6 +7,15 @@
     font-style: normal; 
 }
 
+@media only screen and (max-width: 600px) {
+  .card {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1rem;
+  }
+
+}
+
 body {
     background-color: #F8F7FF;
     margin: 0;
@@ -81,11 +90,21 @@ nav > * {
 }
 
 .dropdown.open {
+    padding-top: 1em;
     visibility: visible;
 }
 
 .dropdown {
+    padding-top: 1em;
     visibility: hidden;
+}
+
+.dropdown > .assignment_notes {
+    position: absolute;
+}
+
+.dropdown.open > .assignment_notes {
+    position: relative;
 }
 
 .add-svg {
@@ -175,7 +194,9 @@ nav > * {
 }
 
 .assignment_notes {
+    padding-bottom: 1em;
     display: inline-block;
+    word-wrap: break-word;
     width: 100%;
 }
 

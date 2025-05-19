@@ -71,7 +71,8 @@ function create_placeholder_assignment()
         assignment_div.parentNode.removeChild(assignment_div);
     });
     
-    assignment_form.addEventListener("submit", (e) => {
+    // Submitting logic. we only want to submit if we have valid inputs. if we do, make a new assignment and post data.
+    assignment_form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         if(due_date.value === "")
@@ -151,9 +152,9 @@ function create_assignment(_due_date, _assignment_name, _course_number, _assignm
     controls.appendChild(delete_btn)
     
     
-    delete_btn.addEventListener("click", function(e){
+    delete_btn.addEventListener("click", async function(e){
         clearInterval(intevalID);
-        deleteData(id)
+        await deleteData(id)
         assignment_div.parentNode.removeChild(assignment_div);
     });
 
